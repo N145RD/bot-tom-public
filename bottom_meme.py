@@ -2,9 +2,12 @@ import discord
 import copy
 import sys
 from PIL import Image, ImageSequence, ImageDraw, ImageFont
+from PIL.Image import Resampling
 import requests
 import re
 import os
+
+
 
 if (len(sys.argv) != 2):
     exit(84)
@@ -47,8 +50,10 @@ async def on_message(message):
                 frames = []
                 for i in ImageSequence.Iterator(foreground):
                     frame_back = copy.deepcopy(background)
-                    frame_back.paste(i, (350, 80))
-                    i.thumbnail((50, 50), Image.ANTIALIAS)
+                    i = i.resize((100, 100), Resampling.LANCZOS)
+                    frame_back.paste(i, (370, 80))
+                    #i.thumbnail((50, 50), Image.ANTIALIAS)
+                    i = i.resize((40,40),Resampling.LANCZOS)
                     frame_back.paste(i, (160, 550))
                     frames.append(frame_back)
                 frame_one = frames[0]
