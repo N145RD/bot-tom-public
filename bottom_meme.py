@@ -68,6 +68,7 @@ async def on_message(message):
                 background.save('out.png')
                 await replied.reply(file=discord.File('out.png'))
                 os.remove('out.png')
+            foreground.close()
             os.remove(ftype)
 
 client.run(sys.argv[1])
