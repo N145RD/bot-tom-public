@@ -23,7 +23,7 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    if message.content.startswith('bottom'):
+    if str.lower(message.content).startswith('bottom'):
         replied = await message.channel.fetch_message(message.reference.message_id)
         print(f'Parsing message {replied} of content {replied.content}')
         custom_emojis = re.findall(r'<\w*:\w*:\d*>', replied.content)
