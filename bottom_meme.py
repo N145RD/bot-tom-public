@@ -90,6 +90,7 @@ async def on_message(message):
             background.save('out.png')
             await replied.reply(file=discord.File('out.png'))
             os.remove('out.png')
+            break
 
 
 async def split_count(text):
