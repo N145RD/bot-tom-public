@@ -6,6 +6,9 @@ from PIL.Image import Resampling
 import requests
 import re
 import os
+import emoji
+from twemoji_parser import TwemojiParser
+import regex
 
 
 
@@ -72,4 +75,30 @@ async def on_message(message):
             foreground.close()
             os.remove(ftype)
 
+        default_emojis = await split_count(replied.content)
+        print("found default emojies: " + str(default_emojis))
+        for default_emoji in default_emojis:
+            background = Image.open('unknown.png')
+            parser = TwemojiParser(background)
+            font = ImageFont.truetype("Ldfcomicsans.ttf", 100)
+            await parser.draw_text((370, 80), default_emoji, font=font)
+            await parser.close()
+            parser = TwemojiParser(background)
+            font = ImageFont.truetype("Ldfcomicsans.ttf", 30)
+            await parser.draw_text((165, 555), default_emoji, font=font)
+            await parser.close()
+            background.save('out.png')
+            await replied.reply(file=discord.File('out.png'))
+            os.remove('out.png')
+            break
+
+
+async def split_count(text):
+    emoji_list = []
+    data = regex.findall(r'\X', text)
+    for word in data:
+        if any(char in emoji.UNICODE_EMOJI['en'] for char in word):
+            emoji_list.append(word)
+
+    return emoji_list
 client.run(sys.argv[1])
