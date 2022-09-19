@@ -67,7 +67,7 @@ async def on_message(message):
             else:
                 print(f'Static emoji found')
                 background.paste(foreground, (350, 80), mask=foreground)
-                foreground.thumbnail((50, 50), Image.ANTIALIAS)
+                foreground.thumbnail((50, 50), Resampling.LANCZOS)
                 background.paste(foreground, (160, 550), mask=foreground)
                 background.save('out.png')
                 await replied.reply(file=discord.File('out.png'))
