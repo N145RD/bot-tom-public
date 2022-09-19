@@ -34,7 +34,7 @@ async def on_message(message):
         print(f'Parsing message {replied} of content {replied.content}')
         custom_emojis = re.findall(r'<\w*:\w*:\d*>', replied.content)
         print(f'Found emojis {custom_emojis}')
-        for e in custom_emojis[:1]:
+        for e in custom_emojis:
             print(f'Checking emoji {e}')
             emoji = discord.PartialEmoji.from_str(e)
             url = emoji.url
@@ -74,6 +74,7 @@ async def on_message(message):
                 os.remove('out.png')
             foreground.close()
             os.remove(ftype)
+            return
 
         default_emojis = await split_count(replied.content)
         print("found default emojies: " + str(default_emojis))
