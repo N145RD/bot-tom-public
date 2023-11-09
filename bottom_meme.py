@@ -42,9 +42,10 @@ async def on_message(message):
             myfile = requests.get(url)
             print(f'Getting file from {ftype}')
             open(f'{ftype}', 'wb').write(myfile.content)
+
             if str.lower(message.content).startswith('bottom'):
                 background = Image.open('unknown.png')
-                foreground = Image.open(ftype).convert("RGBA")
+                foreground = Image.open(ftype)
                 drawspace = ImageDraw.Draw(background)
                 font = ImageFont.truetype("Ldfcomicsans.ttf", 20)
                 drawspace.text((100, 250), replied.author.name, fill=(0,0,0), font=font)
@@ -54,15 +55,20 @@ async def on_message(message):
                     src_duration = foreground.info["duration"]
                     frames = []
                     for i in ImageSequence.Iterator(foreground):
-                        frame_back = copy.deepcopy(background)
-                        i = i.resize((100, 100), Resampling.LANCZOS)
-                        frame_back.paste(i, (370, 80))
-                        i = i.resize((40,40),Resampling.LANCZOS)
-                        frame_back.paste(i, (160, 550))
-                        frame_back = frame_back.convert('RGB')
+                        frame_back = copy.deepcopy(background).convert('RGBA')
+                        i = i.convert("RGBA")
+                        scaleRatio = await findScaleRatio(100, 100, i.width, i.height)
+                        i = await scaleResizeImage(i, scaleRatio)
+                        frame_back.paste(i, (370, 80), i)
+                        print ("!")
+                        scaleRatio = await findScaleRatio(40, 40, i.width, i.height)
+                        i = await scaleResizeImage(i, scaleRatio)
+                        frame_back.paste(i, (160, 550), i)
+
+                        frame_back = frame_back.convert('RGBA')
                         frames.append(frame_back)
                     print(frames[0])
-                    frames[0].save("out.gif", format="GIF", append_images=frames[1:], duration=src_duration, save_all=True, optimize=False, loop=0)
+                    frames[0].save("out.gif", format="GIF", append_images=frames[1:], duration=src_duration, disposal=2, save_all=True, optimize=False, loop=0)
                     await replied.reply(file=discord.File('out.gif'))
                     os.remove('out.gif')
                 else:
@@ -75,9 +81,10 @@ async def on_message(message):
                     os.remove('out.png')
                 foreground.close()
                 os.remove(ftype)
+
             if str.lower(message.content).startswith('softbottom'):
                 background = Image.open('softbottom.jpg')
-                foreground = Image.open(ftype).convert("RGBA")
+                foreground = Image.open(ftype)
                 drawspace = ImageDraw.Draw(background)
                 font = ImageFont.truetype("Ldfcomicsans.ttf", 50)
                 drawspace.text((300, 170), replied.author.name, fill=(0,0,0), font=font)
@@ -87,13 +94,14 @@ async def on_message(message):
                     src_duration = foreground.info["duration"]
                     frames = []
                     for i in ImageSequence.Iterator(foreground):
-                        frame_back = copy.deepcopy(background)
-                        i = i.resize((200, 200), Resampling.LANCZOS)
-                        frame_back.paste(i, (730, 320))
-                        frame_back = frame_back.convert('RGB')
+                        i = i.convert("RGBA")
+                        frame_back = copy.deepcopy(background).convert('RGBA')
+                        scaleRatio = await findScaleRatio(200,200,i.width,i.height)
+                        i = await scaleResizeImage(i,scaleRatio)
+                        frame_back.paste(i, (730, 320), i)
+                        frame_back = frame_back.convert('RGBA')
                         frames.append(frame_back)
-                    print(frames[0])
-                    frames[0].save("out.gif", format="GIF", append_images=frames[1:], duration=src_duration, save_all=True, optimize=False, loop=0)
+                    frames[0].save("out.gif", format="GIF", append_images=frames[1:], duration=src_duration, disposal=2, save_all=True, optimize=False, loop=0)
                     await replied.reply(file=discord.File('out.gif'))
                     os.remove('out.gif')
                 else:
@@ -129,6 +137,7 @@ async def on_message(message):
                 await replied.reply(file=discord.File('out.png'))
                 os.remove('out.png')
                 break
+
         if str.lower(message.content).startswith('softbottom'):
             default_emojis = await split_count(replied.content)
             print("found default emojies: " + str(default_emojis))
@@ -153,7 +162,7 @@ async def findScaleRatio(maxwidth, maxheight, currentwidth, currentheight):
 async def scaleResizeImage(image, scaleRatio):
     newWidth = int(image.width * scaleRatio)
     newHeight = int(image.height * scaleRatio)
-    return image.resize((newWidth, newHeight))
+    return image.resize((newWidth, newHeight), Resampling.LANCZOS)
 
 async def split_count(text):
     emoji_list = []
