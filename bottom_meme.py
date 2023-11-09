@@ -126,7 +126,7 @@ async def on_message(message):
                 background = Image.open('unknown.png')
                 parser = TwemojiParser(background)
                 font = ImageFont.truetype("Ldfcomicsans.ttf", 100)
-                await parser.draw_text((370, 80), default_emoji, font=font)
+                await parser.draw_text((370, 70), default_emoji, font=font)
                 await parser.close()
                 drawspace = ImageDraw.Draw(background)
                 font = ImageFont.truetype("Ldfcomicsans.ttf", 20)
