@@ -14,6 +14,12 @@ And it will send it as a reply to the **original message** like this:
 
 It also works with gif emotes!
 
+### Soft Bottom
+
+Now also supports a second template triggered by typing softbottom instead of bottom:
+
+![example of softbottom template](screenshots/softbottom-example.png)
+
 ## Getting Started
 ### Prerequisites
 
