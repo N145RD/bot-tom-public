@@ -6,7 +6,7 @@ COPY ./* ./
 
 RUN python3 -m pip install -U git+https://github.com/Rapptz/discord.py
 
-RUN python3 -m pip install -U git+https://github.com/edugomez102/twemoji-parser
+RUN python3 -m pip install -U git+https://github.com/R1chae/twemoji-parser
 
 ## RUN python3 -m pip install pillow requests emoji==1.7
 
