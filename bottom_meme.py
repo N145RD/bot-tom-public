@@ -73,6 +73,7 @@ async def on_message(message):
                     os.remove('out.gif')
                 else:
                     print(f'Static emoji found')
+                    foreground = foreground.convert('RGBA')
                     scaleRatio = await findScaleRatio(85, 85, foreground.width, foreground.height)
                     foreground = await scaleResizeImage(foreground, scaleRatio)
                     background.paste(foreground, ( int(415-foreground.width/2), int(130-foreground.height/2)), foreground)
@@ -109,6 +110,7 @@ async def on_message(message):
                     os.remove('out.gif')
                 else:
                     print(f'Static emoji found')
+                    foreground = foreground.convert('RGBA')
                     scaleRatio = await findScaleRatio(180,180,foreground.width,foreground.height)
                     foreground = await scaleResizeImage(foreground, scaleRatio)
                     background.paste(foreground, (int(820-foreground.width/2), int(430-foreground.height/2)), mask=foreground)
