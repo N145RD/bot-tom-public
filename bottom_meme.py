@@ -42,63 +42,76 @@ async def on_message(message):
             myfile = requests.get(url)
             print(f'Getting file from {ftype}')
             open(f'{ftype}', 'wb').write(myfile.content)
+
             if str.lower(message.content).startswith('bottom'):
                 background = Image.open('unknown.png')
                 foreground = Image.open(ftype)
                 drawspace = ImageDraw.Draw(background)
                 font = ImageFont.truetype("Ldfcomicsans.ttf", 20)
                 drawspace.text((100, 250), replied.author.name, fill=(0,0,0), font=font)
-                drawspace.text((350, 350), message.author.name, fill=(0,0,0), font=font)
+                drawspace.text((320, 350), message.author.name, fill=(0,0,0), font=font)
                 if emoji.animated:
                     print(f'Animated emoji found')
                     src_duration = foreground.info["duration"]
                     frames = []
                     for i in ImageSequence.Iterator(foreground):
-                        frame_back = copy.deepcopy(background)
-                        i = i.resize((100, 100), Resampling.LANCZOS)
-                        frame_back.paste(i, (370, 80))
-                        i = i.resize((40,40),Resampling.LANCZOS)
-                        frame_back.paste(i, (160, 550))
-                        frame_back = frame_back.convert('RGB')
+                        frame_back = copy.deepcopy(background).convert('RGBA')
+                        i = i.convert("RGBA")
+                        scaleRatio = await findScaleRatio(85, 85, i.width, i.height)
+                        i = await scaleResizeImage(i, scaleRatio)
+                        frame_back.paste(i, (int(415-i.width/2), int(130-i.height/2)), i)
+                        print ("!")
+                        scaleRatio = await findScaleRatio(40, 40, i.width, i.height)
+                        i = await scaleResizeImage(i, scaleRatio)
+                        frame_back.paste(i, (int(190-i.width/2), int(570-i.height/2)), i)
+
+                        frame_back = frame_back.convert('RGBA')
                         frames.append(frame_back)
                     print(frames[0])
-                    frames[0].save("out.gif", format="GIF", append_images=frames[1:], duration=src_duration, save_all=True, optimize=False, loop=0)
+                    frames[0].save("out.gif", format="GIF", append_images=frames[1:], duration=src_duration, disposal=2, save_all=True, optimize=False, loop=0)
                     await replied.reply(file=discord.File('out.gif'))
                     os.remove('out.gif')
                 else:
                     print(f'Static emoji found')
-                    background.paste(foreground, (350, 80), mask=foreground)
-                    foreground.thumbnail((50, 50), Resampling.LANCZOS)
-                    background.paste(foreground, (160, 550), mask=foreground)
+                    scaleRatio = await findScaleRatio(85, 85, foreground.width, foreground.height)
+                    foreground = await scaleResizeImage(foreground, scaleRatio)
+                    background.paste(foreground, ( int(415-foreground.width/2), int(130-foreground.height/2)), foreground)
+                    scaleRatio = await findScaleRatio(40, 40, foreground.width, foreground.height)
+                    foreground = await scaleResizeImage(foreground, scaleRatio)
+                    background.paste(foreground, (int(190-foreground.width/2), int(570-foreground.height/2)), foreground)
                     background.save('out.png')
                     await replied.reply(file=discord.File('out.png'))
                     os.remove('out.png')
                 foreground.close()
                 os.remove(ftype)
+
             if str.lower(message.content).startswith('softbottom'):
                 background = Image.open('softbottom.jpg')
                 foreground = Image.open(ftype)
                 drawspace = ImageDraw.Draw(background)
-                font = ImageFont.truetype("Ldfcomicsans.ttf", 20)
-                drawspace.text((300, 370), replied.author.name, fill=(0,0,0), font=font)
-                drawspace.text((600, 1330), message.author.name, fill=(0,0,0), font=font)
+                font = ImageFont.truetype("Ldfcomicsans.ttf", 50)
+                drawspace.text((220, 170), replied.author.name, fill=(0,0,0), font=font)
+                drawspace.text((550, 1110), message.author.name, fill=(0,0,0), font=font)
                 if emoji.animated:
                     print(f'Animated emoji found')
                     src_duration = foreground.info["duration"]
                     frames = []
                     for i in ImageSequence.Iterator(foreground):
-                        frame_back = copy.deepcopy(background)
-                        i = i.resize((100, 100), Resampling.LANCZOS)
-                        frame_back.paste(i, (760, 600))
-                        frame_back = frame_back.convert('RGB')
+                        i = i.convert("RGBA")
+                        frame_back = copy.deepcopy(background).convert('RGBA')
+                        scaleRatio = await findScaleRatio(180,180,i.width,i.height)
+                        i = await scaleResizeImage(i,scaleRatio)
+                        frame_back.paste(i, (int(820-i.width/2), int(430-i.height/2)), i)
+                        frame_back = frame_back.convert('RGBA')
                         frames.append(frame_back)
-                    print(frames[0])
-                    frames[0].save("out.gif", format="GIF", append_images=frames[1:], duration=src_duration, save_all=True, optimize=False, loop=0)
+                    frames[0].save("out.gif", format="GIF", append_images=frames[1:], duration=src_duration, disposal=2, save_all=True, optimize=False, loop=0)
                     await replied.reply(file=discord.File('out.gif'))
                     os.remove('out.gif')
                 else:
                     print(f'Static emoji found')
-                    background.paste(foreground, (760, 600), mask=foreground)
+                    scaleRatio = await findScaleRatio(180,180,foreground.width,foreground.height)
+                    foreground = await scaleResizeImage(foreground, scaleRatio)
+                    background.paste(foreground, (int(820-foreground.width/2), int(430-foreground.height/2)), mask=foreground)
                     background.save('out.png')
                     await replied.reply(file=discord.File('out.png'))
                     os.remove('out.png')
@@ -113,12 +126,12 @@ async def on_message(message):
                 background = Image.open('unknown.png')
                 parser = TwemojiParser(background)
                 font = ImageFont.truetype("Ldfcomicsans.ttf", 100)
-                await parser.draw_text((370, 80), default_emoji, font=font)
+                await parser.draw_text((370, 70), default_emoji, font=font)
                 await parser.close()
                 drawspace = ImageDraw.Draw(background)
                 font = ImageFont.truetype("Ldfcomicsans.ttf", 20)
                 drawspace.text((100, 250), replied.author.name, fill=(0,0,0), font=font)
-                drawspace.text((350, 350), message.author.name, fill=(0,0,0), font=font)
+                drawspace.text((320, 350), message.author.name, fill=(0,0,0), font=font)
                 parser = TwemojiParser(background)
                 font = ImageFont.truetype("Ldfcomicsans.ttf", 30)
                 await parser.draw_text((165, 555), default_emoji, font=font)
@@ -127,24 +140,32 @@ async def on_message(message):
                 await replied.reply(file=discord.File('out.png'))
                 os.remove('out.png')
                 break
+
         if str.lower(message.content).startswith('softbottom'):
             default_emojis = await split_count(replied.content)
             print("found default emojies: " + str(default_emojis))
             for default_emoji in default_emojis:
                 background = Image.open('softbottom.jpg')
                 parser = TwemojiParser(background)
-                font = ImageFont.truetype("Ldfcomicsans.ttf", 100)
-                await parser.draw_text((760, 600), default_emoji, font=font)
+                font = ImageFont.truetype("Ldfcomicsans.ttf", 200)
+                await parser.draw_text((730, 320), default_emoji, font=font)
                 await parser.close()
                 drawspace = ImageDraw.Draw(background)
-                font = ImageFont.truetype("Ldfcomicsans.ttf", 60)
-                drawspace.text((280, 370), replied.author.name, fill=(0,0,0), font=font)
-                drawspace.text((550, 1310), message.author.name, fill=(0,0,0), font=font)
+                font = ImageFont.truetype("Ldfcomicsans.ttf", 50)
+                drawspace.text((220, 170), replied.author.name, fill=(0,0,0), font=font)
+                drawspace.text((550, 1110), message.author.name, fill=(0,0,0), font=font)
                 background.save('out.png')
                 await replied.reply(file=discord.File('out.png'))
                 os.remove('out.png')
                 break
 
+async def findScaleRatio(maxwidth, maxheight, currentwidth, currentheight):
+    return min(maxwidth/currentwidth, maxheight/currentheight)
+
+async def scaleResizeImage(image, scaleRatio):
+    newWidth = int(image.width * scaleRatio)
+    newHeight = int(image.height * scaleRatio)
+    return image.resize((newWidth, newHeight), Resampling.LANCZOS)
 
 async def split_count(text):
     emoji_list = []
